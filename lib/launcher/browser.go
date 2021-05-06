@@ -167,8 +167,11 @@ func (lc *Browser) download(ctx context.Context, u string) error {
 	utils.E(err)
 	defer func() { _ = res.Body.Close() }()
 
-	size, err := strconv.ParseInt(res.Header.Get("Content-Length"), 10, 64)
-	utils.E(err)
+	size, _ := strconv.ParseInt(res.Header.Get("Content-Length"), 10, 64)
+
+	if res.StatusCode >= 400 || size < 3*1024*1024 {
+		panic("Failed to download the browser")
+	}
 
 	progress := &progresser{
 		size:   int(size),
